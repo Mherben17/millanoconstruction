@@ -148,7 +148,13 @@ function initContactForm() {
             })
             .catch(function(error) {
                 console.error('EmailJS send failed:', error);
-                statusEl.textContent = 'Unable to send message. Please check the console for details.';
+                let errorMsg = 'Unable to send message.';
+                if (error.text) {
+                    errorMsg = 'Error: ' + error.text;
+                } else if (error.message) {
+                    errorMsg = 'Error: ' + error.message;
+                }
+                statusEl.textContent = errorMsg;
                 statusEl.className = 'contact-status status-error';
                 submitBtn.textContent = 'Error! Try Again';
                 submitBtn.style.background = '#dc2626';
