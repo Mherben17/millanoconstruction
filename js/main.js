@@ -102,11 +102,9 @@ function escapeHtml(text) {
 }
 
 function initContactForm() {
-    // Initialize EmailJS with your Public Key
-    emailjs.init("PrwfPQmK8N4sv0ZaQ");
-
     const form = document.getElementById('contactForm');
-    if (!form) return;
+    const statusEl = document.getElementById('contactStatus');
+    if (!form || !statusEl) return;
 
     form.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -115,31 +113,67 @@ function initContactForm() {
         
         submitBtn.textContent = 'Sending...';
         submitBtn.disabled = true;
+        statusEl.textContent = 'Sending your message...';
+        statusEl.className = 'contact-status status-info';
 
-        emailjs.sendForm('service_1k53sv7', 'template_elmsf5i', form)
-            .then(function(response) {
-                console.log('Email sent successfully!', response.status, response.text);
-                submitBtn.textContent = 'Message Sent!';
-                submitBtn.style.background = '#16a34a';
-                
-                setTimeout(function () {
-                    submitBtn.textContent = originalText;
-                    submitBtn.style.background = '';
-                    submitBtn.disabled = false;
-                    form.reset();
-                }, 3000);
-            })
-            .catch(function(error) {
-                console.error('Failed to send email:', error);
-                submitBtn.textContent = 'Error! Try Again';
-                submitBtn.style.background = '#dc2626';
-                
-                setTimeout(function () {
-                    submitBtn.textContent = originalText;
-                    submitBtn.style.background = '';
-                    submitBtn.disabled = false;
-                }, 3000);
-            });
+        const payload = {
+            service_id: 'service_1k53sv7',
+            template_id: 'template_elmsf5i',
+            user_id: 'PrwfPQmK8N4sv0ZaQ',
+            template_params: {
+                to_email: 'millanocons@gmail.com',
+                from_name: form.name.value,
+                from_email: form.email.value,
+                phone: form.phone.value || 'Not provided',
+                projectType: form.projectType.value,
+                message: form.message.value,
+                reply_to: form.email.value
+            }
+        };
+
+        fetch('https://api.emailjs.com/api/v1.0/email/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(function (response) {
+            if (!response.ok) {
+                return response.text().then(function (text) {
+                    throw new Error(text || 'EmailJS request failed');
+                });
+            }
+            return response.text();
+        })
+        .then(function () {
+            console.log('EmailJS request succeeded');
+            statusEl.textContent = 'Message sent successfully!';
+            statusEl.className = 'contact-status status-success';
+            submitBtn.textContent = 'Message Sent!';
+            submitBtn.style.background = '#16a34a';
+
+            setTimeout(function () {
+                submitBtn.textContent = originalText;
+                submitBtn.style.background = '';
+                submitBtn.disabled = false;
+                form.reset();
+                statusEl.textContent = '';
+            }, 3000);
+        })
+        .catch(function (error) {
+            console.error('EmailJS send failed:', error);
+            statusEl.textContent = 'Unable to send message. Please try again later.';
+            statusEl.className = 'contact-status status-error';
+            submitBtn.textContent = 'Error! Try Again';
+            submitBtn.style.background = '#dc2626';
+
+            setTimeout(function () {
+                submitBtn.textContent = originalText;
+                submitBtn.style.background = '';
+                submitBtn.disabled = false;
+            }, 3000);
+        });
     });
 }
 
