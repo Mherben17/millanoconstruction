@@ -102,6 +102,10 @@ function escapeHtml(text) {
 }
 
 function initContactForm() {
+    if (typeof emailjs !== 'undefined' && emailjs.init) {
+        emailjs.init('PrwfPQmK8N4sv0ZaQ');
+    }
+
     const form = document.getElementById('contactForm');
     const statusEl = document.getElementById('contactStatus');
     if (!form || !statusEl) return;
