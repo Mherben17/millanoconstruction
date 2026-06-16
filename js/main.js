@@ -116,64 +116,45 @@ function initContactForm() {
         statusEl.textContent = 'Sending your message...';
         statusEl.className = 'contact-status status-info';
 
-        const payload = {
-            service_id: 'service_1k53sv7',
-            template_id: 'template_elmsf5i',
-            user_id: 'PrwfPQmK8N4sv0ZaQ',
-            template_params: {
-                to_email: 'millanocons@gmail.com',
-                from_name: form.name.value,
-                from_email: form.email.value,
-                phone: form.phone.value || 'Not provided',
-                projectType: form.projectType.value,
-                message: form.message.value,
-                reply_to: form.email.value
-            }
+        const templateParams = {
+            to_email: 'millanocons@gmail.com',
+            from_name: form.name.value,
+            from_email: form.email.value,
+            phone: form.phone.value || 'Not provided',
+            projectType: form.projectType.value,
+            message: form.message.value,
+            reply_to: form.email.value
         };
 
-        fetch('https://api.emailjs.com/api/v1.0/email/send', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        })
-        .then(function (response) {
-            if (!response.ok) {
-                return response.text().then(function (text) {
-                    throw new Error(text || 'EmailJS request failed');
-                });
-            }
-            return response.text();
-        })
-        .then(function () {
-            console.log('EmailJS request succeeded');
-            statusEl.textContent = 'Message sent successfully!';
-            statusEl.className = 'contact-status status-success';
-            submitBtn.textContent = 'Message Sent!';
-            submitBtn.style.background = '#16a34a';
+        emailjs.send('service_1k53sv7', 'template_elmsf5i', templateParams)
+            .then(function(response) {
+                console.log('EmailJS send succeeded', response);
+                statusEl.textContent = 'Message sent successfully!';
+                statusEl.className = 'contact-status status-success';
+                submitBtn.textContent = 'Message Sent!';
+                submitBtn.style.background = '#16a34a';
 
-            setTimeout(function () {
-                submitBtn.textContent = originalText;
-                submitBtn.style.background = '';
-                submitBtn.disabled = false;
-                form.reset();
-                statusEl.textContent = '';
-            }, 3000);
-        })
-        .catch(function (error) {
-            console.error('EmailJS send failed:', error);
-            statusEl.textContent = 'Unable to send message. Please try again later.';
-            statusEl.className = 'contact-status status-error';
-            submitBtn.textContent = 'Error! Try Again';
-            submitBtn.style.background = '#dc2626';
+                setTimeout(function () {
+                    submitBtn.textContent = originalText;
+                    submitBtn.style.background = '';
+                    submitBtn.disabled = false;
+                    form.reset();
+                    statusEl.textContent = '';
+                }, 3000);
+            })
+            .catch(function(error) {
+                console.error('EmailJS send failed:', error);
+                statusEl.textContent = 'Unable to send message. Please check the console for details.';
+                statusEl.className = 'contact-status status-error';
+                submitBtn.textContent = 'Error! Try Again';
+                submitBtn.style.background = '#dc2626';
 
-            setTimeout(function () {
-                submitBtn.textContent = originalText;
-                submitBtn.style.background = '';
-                submitBtn.disabled = false;
-            }, 3000);
-        });
+                setTimeout(function () {
+                    submitBtn.textContent = originalText;
+                    submitBtn.style.background = '';
+                    submitBtn.disabled = false;
+                }, 3000);
+            });
     });
 }
 
