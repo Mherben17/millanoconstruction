@@ -107,8 +107,15 @@ function initContactForm() {
     }
 
     const form = document.getElementById('contactForm');
-    const statusEl = document.getElementById('contactStatus');
-    if (!form || !statusEl) return;
+    let statusEl = document.getElementById('contactStatus');
+    if (!form) return;
+    if (!statusEl) {
+        statusEl = document.createElement('div');
+        statusEl.id = 'contactStatus';
+        statusEl.className = 'contact-status';
+        statusEl.setAttribute('aria-live', 'polite');
+        form.appendChild(statusEl);
+    }
 
     form.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -124,10 +131,14 @@ function initContactForm() {
             to_email: 'millanocons@gmail.com',
             from_name: form.name.value,
             from_email: form.email.value,
+            reply_to: form.email.value,
+            email: form.email.value,
+            name: form.name.value,
+            sender_email: form.email.value,
+            subject: 'New contact request from ' + form.name.value,
             phone: form.phone.value || 'Not provided',
             projectType: form.projectType.value,
-            message: form.message.value,
-            reply_to: form.email.value
+            message: form.message.value
         };
 
         emailjs.send('service_1k53sv7', 'template_elmsf5i', templateParams)
